@@ -1,202 +1,242 @@
-# RPG Productivity App 🎮
+# RPG Productivity App ⚔️
 
-Um sistema de produtividade gamificado inspirado em RPGs, criado para transformar tarefas diárias em progressão de personagem.
+Backend API inspired by RPG systems to transform real-life productivity into character progression.
 
-O projeto nasceu com dois objetivos principais:
-
-- Evolução pessoal através de gamificação.
-- Evolução técnica como desenvolvedor Full Stack.
-
-Cada tarefa completada gera:
-- XP
-- Progressão
-- Evolução de atributos
-- Sistema de level
-- Crescimento do personagem
+Users can create tasks, complete challenges, gain XP, level up, and evolve specific attributes like discipline, knowledge, mentality, body, social, and finances.
 
 ---
 
-# 🚀 Tecnologias Utilizadas
+# 🚀 Features
 
-## Backend
+## ✅ Authentication System
+- JWT Authentication
+- Login & Register
+- Password Hashing with bcrypt
+- Protected Routes
+- Token Validation Middleware
+- Multiuser Architecture
+
+---
+
+## ✅ Task System
+- Create Tasks
+- Complete Tasks
+- Dynamic XP Rewards
+- Difficulty System
+- User-specific Tasks
+- Task Completion Validation
+
+---
+
+## ✅ RPG Progression System
+- XP Gain
+- Dynamic Leveling System
+- Remaining XP Logic
+- Skill Progression
+- Attribute Evolution
+
+Attributes:
+- Discipline
+- Knowledge
+- Mentality
+- Body
+- Social
+- Finances
+
+---
+
+# 🧠 Technologies Used
+
 - Node.js
-- Express
-- JavaScript
-
-## Banco de Dados
+- Express.js
 - Firebase Firestore
-
-## Bibliotecas
+- bcrypt
+- jsonwebtoken (JWT)
 - dotenv
-- firebase-admin
 
 ---
 
-# 📚 Objetivos de Aprendizado
-
-Este projeto está sendo utilizado para estudar:
-
-- Backend com Node.js
-- APIs REST
-- Firestore
-- Arquitetura Backend
-- Modelagem de dados
-- Regras de negócio
-- Sistemas de progressão
-- Estruturação de projetos
-- Versionamento com Git/GitHub
-- Futuramente Frontend Full Stack
-
----
-
-# 🧠 Conceito do Sistema
-
-O usuário possui um personagem.
-
-Ao completar tarefas da vida real:
-
-- ganha XP
-- sobe de nível
-- evolui atributos
-- melhora áreas da vida
-
-A ideia é transformar disciplina e evolução pessoal em um RPG.
-
----
-
-# 🏗️ Estrutura Atual do Projeto
+# 📁 Project Structure
 
 ```bash
 src/
-│
 ├── config/
 │   └── firebase.js
 │
 ├── controllers/
+│   ├── authController.js
 │   ├── taskController.js
 │   └── userController.js
 │
+├── middlewares/
+│   └── authMiddleware.js
+│
 ├── routes/
+│   ├── authRoutes.js
 │   ├── taskRoutes.js
 │   └── userRoutes.js
 │
-└── app.js
+└── server.js
 ```
 
 ---
 
-# 🔥 Funcionalidades Atuais
+# 🔐 Authentication Flow
 
-# 👤 Usuários
+## Register
+User creates an account:
 
-✅ Criar usuário
+```http
+POST /auth/register
+```
 
-✅ Sistema de level
+### Body
 
-✅ Sistema de XP
-
-✅ Atributos RPG
-
-### Estrutura atual do usuário
-
-```js
+```json
 {
-  username,
-
-  level,
-  xp,
-
-  discipline,
-  knowledge,
-  mentality,
-  body,
-  social,
-  finances,
-
-  createdAt
+  "email": "user@email.com",
+  "username": "Fernando",
+  "password": "123456"
 }
 ```
 
 ---
 
-# ✅ Tasks
+## Login
 
-✅ Criar task
+```http
+POST /auth/login
+```
 
-✅ Buscar tasks
+### Body
 
-✅ Completar task
-
-✅ Sistema de recompensa XP
-
-✅ Task vinculada ao usuário
-
-✅ Sistema anti duplicação de recompensa
-
-### Estrutura atual da task
-
-```js
+```json
 {
-  title,
-  difficulty,
-  category,
-  userId,
+  "email": "user@email.com",
+  "password": "123456"
+}
+```
 
-  xpReward,
-  completed,
+### Response
 
-  createdAt
+```json
+{
+  "token": "JWT_TOKEN"
 }
 ```
 
 ---
 
-# ⚔️ Sistema de Progressão
+# 🛡 Protected Routes
 
-## XP por dificuldade
+Protected routes require:
 
-| Dificuldade | XP |
+```http
+Authorization: Bearer YOUR_TOKEN
+```
+
+Example:
+
+```http
+GET /users/profile
+```
+
+---
+
+# 📌 API Routes
+
+# Auth Routes
+
+| Method | Route | Description |
+|---|---|---|
+| POST | /auth/register | Register new user |
+| POST | /auth/login | Login user |
+
+---
+
+# User Routes
+
+| Method | Route | Description |
+|---|---|---|
+| GET | /users/profile | Get authenticated user profile |
+
+---
+
+# Task Routes
+
+| Method | Route | Description |
+|---|---|---|
+| POST | /tasks | Create task |
+| GET | /tasks | Get authenticated user tasks |
+| PATCH | /tasks/:id/completed | Complete task |
+
+---
+
+# ⚔️ XP System
+
+XP rewards are based on task difficulty.
+
+| Difficulty | XP |
 |---|---|
-| easy | 10 XP |
-| medium | 25 XP |
-| hard | 100 XP |
+| Easy | 10 XP |
+| Medium | 25 XP |
+| Hard | 1000 XP |
 
 ---
 
-## Sistema de level
+# 🧬 Dynamic Level System
 
-Atualmente:
+Level progression uses dynamic scaling.
 
-```text
-100 XP = Level Up
+Example:
+
+| Level | XP Required |
+|---|---|
+| 1 → 2 | 100 XP |
+| 2 → 3 | 200 XP |
+| 3 → 4 | 300 XP |
+
+Formula:
+
+```js
+xpToNextLevel = level * 100
 ```
 
-Quando o usuário alcança 100 XP:
+---
 
-- sobe de nível
-- XP excedente permanece
+# 🔒 Security
+
+- Passwords are hashed with bcrypt
+- JWT tokens expire in 7 days
+- Protected routes use middleware validation
+- User tasks are isolated by userId
+- Sensitive environment variables are hidden using .env
 
 ---
 
-# 📦 Instalação
+# ⚙️ Environment Variables
 
-## 1. Clone o repositório
+Create a `.env` file in the root directory.
+
+Example:
+
+```env
+JWT_SECRET=your_secret_here
+```
+
+---
+
+# 📦 Installation
+
+## Clone Repository
 
 ```bash
-git clone https://github.com/SEU-USUARIO/rpg-backend.git
+git clone https://github.com/dvlneon1/rpg-productivity-app.git
 ```
 
 ---
 
-## 2. Entre na pasta do projeto
-
-```bash
-cd rpg-backend
-```
-
----
-
-## 3. Instale as dependências
+## Install Dependencies
 
 ```bash
 npm install
@@ -204,249 +244,52 @@ npm install
 
 ---
 
-# 🔐 Configuração Firebase
-
-## Crie um arquivo `.env`
-
-```env
-FIREBASE_KEY_PATH=./serviceAccountKey.json
-```
-
----
-
-## Adicione sua chave Firebase
-
-Baixe sua chave privada no Firebase Console e coloque na raiz do projeto.
-
-Exemplo:
-
-```bash
-serviceAccountKey.json
-```
-
-⚠️ Nunca envie sua chave Firebase para o GitHub.
-
----
-
-# 🚫 .gitignore
-
-Crie um arquivo:
-
-```bash
-.gitignore
-```
-
-Conteúdo:
-
-```gitignore
-node_modules
-.env
-serviceAccountKey.json
-```
-
----
-
-# ▶️ Executando o Projeto
+## Start Server
 
 ```bash
 npm run dev
 ```
 
-Servidor:
+---
 
-```bash
-http://localhost:3000
-```
+# 🎯 Future Features
+
+- Daily Quests
+- Achievement System
+- Inventory System
+- Equipment System
+- Guilds / Teams
+- Leaderboards
+- Frontend Integration
+- AI Productivity Assistant
+- Statistics Dashboard
+- Task Categories UI
 
 ---
 
-# 📌 Rotas da API
+# 🧠 Learning Goals
 
-# 👤 Usuários
+This project was created to practice:
 
-## Criar usuário
-
-```http
-POST /users
-```
-
-### Body
-
-```json
-{
-  "username": "Fernando"
-}
-```
+- Backend Development
+- REST APIs
+- Authentication
+- Middleware
+- Firestore Queries
+- JWT Security
+- RPG System Logic
+- Software Architecture
+- Multiuser Systems
 
 ---
 
-# ✅ Tasks
+# 👨‍💻 Author
 
-## Criar task
-
-```http
-POST /tasks
-```
-
-### Body
-
-```json
-{
-  "title": "Estudar Node.js",
-  "difficulty": "medium",
-  "category": "knowledge",
-  "userId": "ID_DO_USUARIO"
-}
-```
+Developed by Fernando César Barbosa Tomain Filho.
 
 ---
 
-## Buscar tasks
+# 📜 License
 
-```http
-GET /tasks
-```
-
----
-
-## Completar task
-
-```http
-PATCH /tasks/:id/complete
-```
-
----
-
-# 🧠 Categorias do Sistema
-
-As tasks possuem categorias ligadas à evolução do personagem.
-
-## Categorias atuais
-
-- discipline
-- knowledge
-- mentality
-- body
-- social
-- finances
-
-Futuramente essas categorias afetarão atributos específicos do usuário.
-
----
-
-# 🏛️ Arquitetura Atual
-
-O projeto utiliza separação por responsabilidades:
-
-| Camada | Responsabilidade |
-|---|---|
-| config | conexão com Firebase |
-| routes | endpoints da API |
-| controllers | lógica de negócio |
-| firestore | persistência de dados |
-
----
-
-# 🧪 Fluxo Atual do Sistema
-
-```text
-Usuário cria task
-↓
-Task recebe userId
-↓
-Usuário completa task
-↓
-Sistema adiciona XP
-↓
-Sistema verifica level up
-↓
-Usuário evolui
-```
-
----
-
-# 🛠️ Próximas Features
-
-## Backend
-
-- JWT Authentication
-- Middleware de autenticação
-- Sistema de streak diária
-- Sistema de conquistas
-- Inventário
-- Loja RPG
-- Equipamentos
-- Sistema de habilidades
-- Boss semanal
-- Sistema de ranking
-- Sistema de missões
-- Estatísticas do usuário
-- Sistema de achievements
-
----
-
-## Frontend
-
-- React
-- Dashboard
-- Avatar customizável
-- Interface minimalista
-- Sistema visual de progressão
-- Barras de XP
-- Inventário visual
-- Marketplace
-- Mobile responsiveness
-
----
-
-# 🎯 Visão do Projeto
-
-O objetivo final é criar:
-
-- um sistema extremamente gamificado
-- produtividade com progressão real
-- evolução pessoal através de RPG
-- uma aplicação Full Stack completa
-
----
-
-# 📖 Aprendizados Durante o Projeto
-
-Durante o desenvolvimento já foram estudados:
-
-✅ CRUD
-
-✅ Rotas REST
-
-✅ Controllers
-
-✅ Firestore
-
-✅ Async/Await
-
-✅ Regras de negócio
-
-✅ Relacionamento entre entidades
-
-✅ Sistema de progressão
-
-✅ Persistência de dados
-
-✅ Debugging
-
-✅ Git/GitHub
-
----
-
-# 👨‍💻 Desenvolvedor
-
-Projeto criado por Fernando César Barbosa Tomain Filho.
-
----
-
-# 📌 Status do Projeto
-
-🚧 Em desenvolvimento ativo.
-
-O projeto continuará evoluindo conforme os estudos avançam.
+This project is under development for educational and portfolio purposes.
 
