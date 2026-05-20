@@ -1,62 +1,98 @@
-# RPG Productivity App ⚔️
+# RPG Productivity App
 
-Backend API inspired by RPG systems to transform real-life productivity into character progression.
+API backend inspirada em sistemas de RPG para transformar produtividade em progressão de personagem.
 
-Users can create tasks, complete challenges, gain XP, level up, and evolve specific attributes like discipline, knowledge, mentality, body, social, and finances.
+O usuário pode criar tarefas, completar desafios, ganhar XP, subir de nível e evoluir atributos pessoais.
 
 ---
 
-# 🚀 Features
+# Funcionalidades
 
-## ✅ Authentication System
+## Autenticação
+
+- Cadastro de usuários
+- Login com JWT
+- Senhas protegidas com bcrypt
+- Rotas protegidas por middleware
+- Autenticação via Bearer Token
+
+---
+
+## Sistema de Tasks
+
+- Criar tarefas
+- Listar tarefas do usuário autenticado
+- Completar tarefas
+- Deletar tarefas
+- Sistema de dificuldade
+- Recompensa de XP
+
+---
+
+## Sistema RPG
+
+- Ganho de XP
+- Sistema de níveis dinâmico
+- XP remanescente após level up
+- Evolução de atributos
+
+Atributos disponíveis:
+
+- discipline
+- knowledge
+- mentality
+- body
+- social
+- finances
+
+---
+
+# Segurança
+
+A API possui:
+
 - JWT Authentication
-- Login & Register
-- Password Hashing with bcrypt
-- Protected Routes
-- Token Validation Middleware
-- Multiuser Architecture
+- Hash de senhas com bcrypt
+- Rotas protegidas
+- Validação de ownership
+- Isolamento de dados por usuário
+- Validação de entrada de dados
+
+Cada usuário pode acessar apenas suas próprias tasks.
 
 ---
 
-## ✅ Task System
-- Create Tasks
-- Complete Tasks
-- Dynamic XP Rewards
-- Difficulty System
-- User-specific Tasks
-- Task Completion Validation
+# Validações
+
+Atualmente a API valida:
+
+- título da task
+- dificuldade
+- categoria
+- usuário autenticado
+- ownership da task
+
+Exemplos de validação:
+
+- título vazio
+- dificuldade inválida
+- categoria inválida
+- tentativa de acessar task de outro usuário
 
 ---
 
-## ✅ RPG Progression System
-- XP Gain
-- Dynamic Leveling System
-- Remaining XP Logic
-- Skill Progression
-- Attribute Evolution
-
-Attributes:
-- Discipline
-- Knowledge
-- Mentality
-- Body
-- Social
-- Finances
-
----
-
-# 🧠 Technologies Used
+# Tecnologias Utilizadas
 
 - Node.js
 - Express.js
 - Firebase Firestore
 - bcrypt
-- jsonwebtoken (JWT)
+- jsonwebtoken
 - dotenv
 
 ---
 
-# 📁 Project Structure
+# Estrutura do Projeto
 
 ```bash
 src/
@@ -81,16 +117,45 @@ src/
 
 ---
 
-# 🔐 Authentication Flow
+# Rotas da API
 
-## Register
-User creates an account:
+## Auth
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | /auth/register | Cadastro de usuário |
+| POST | /auth/login | Login do usuário |
+
+---
+
+## Users
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | /users/profile | Perfil do usuário autenticado |
+
+---
+
+## Tasks
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | /tasks | Criar task |
+| GET | /tasks | Listar tasks do usuário |
+| PATCH | /tasks/:id/completed | Completar task |
+| DELETE | /tasks/:id | Deletar task |
+
+---
+
+# Fluxo de Autenticação
+
+## Cadastro
 
 ```http
 POST /auth/register
 ```
 
-### Body
+Body:
 
 ```json
 {
@@ -108,7 +173,7 @@ POST /auth/register
 POST /auth/login
 ```
 
-### Body
+Body:
 
 ```json
 {
@@ -117,7 +182,7 @@ POST /auth/login
 }
 ```
 
-### Response
+Resposta:
 
 ```json
 {
@@ -127,15 +192,15 @@ POST /auth/login
 
 ---
 
-# 🛡 Protected Routes
+# Rotas Protegidas
 
-Protected routes require:
+As rotas protegidas utilizam:
 
 ```http
-Authorization: Bearer YOUR_TOKEN
+Authorization: Bearer TOKEN
 ```
 
-Example:
+Exemplo:
 
 ```http
 GET /users/profile
@@ -143,60 +208,31 @@ GET /users/profile
 
 ---
 
-# 📌 API Routes
+# Sistema de XP
 
-# Auth Routes
+Recompensas:
 
-| Method | Route | Description |
-|---|---|---|
-| POST | /auth/register | Register new user |
-| POST | /auth/login | Login user |
-
----
-
-# User Routes
-
-| Method | Route | Description |
-|---|---|---|
-| GET | /users/profile | Get authenticated user profile |
-
----
-
-# Task Routes
-
-| Method | Route | Description |
-|---|---|---|
-| POST | /tasks | Create task |
-| GET | /tasks | Get authenticated user tasks |
-| PATCH | /tasks/:id/completed | Complete task |
-
----
-
-# ⚔️ XP System
-
-XP rewards are based on task difficulty.
-
-| Difficulty | XP |
+| Dificuldade | XP |
 |---|---|
-| Easy | 10 XP |
-| Medium | 25 XP |
-| Hard | 1000 XP |
+| easy | 10 XP |
+| medium | 25 XP |
+| hard | 1000 XP |
 
 ---
 
-# 🧬 Dynamic Level System
+# Sistema de Level
 
-Level progression uses dynamic scaling.
+A progressão de nível é dinâmica.
 
-Example:
+Exemplo:
 
-| Level | XP Required |
+| Level | XP necessário |
 |---|---|
 | 1 → 2 | 100 XP |
 | 2 → 3 | 200 XP |
 | 3 → 4 | 300 XP |
 
-Formula:
+Fórmula:
 
 ```js
 xpToNextLevel = level * 100
@@ -204,31 +240,9 @@ xpToNextLevel = level * 100
 
 ---
 
-# 🔒 Security
+# Instalação
 
-- Passwords are hashed with bcrypt
-- JWT tokens expire in 7 days
-- Protected routes use middleware validation
-- User tasks are isolated by userId
-- Sensitive environment variables are hidden using .env
-
----
-
-# ⚙️ Environment Variables
-
-Create a `.env` file in the root directory.
-
-Example:
-
-```env
-JWT_SECRET=your_secret_here
-```
-
----
-
-# 📦 Installation
-
-## Clone Repository
+## Clonar projeto
 
 ```bash
 git clone https://github.com/dvlneon1/rpg-productivity-app.git
@@ -236,7 +250,7 @@ git clone https://github.com/dvlneon1/rpg-productivity-app.git
 
 ---
 
-## Install Dependencies
+## Instalar dependências
 
 ```bash
 npm install
@@ -244,7 +258,15 @@ npm install
 
 ---
 
-## Start Server
+## Criar arquivo .env
+
+```env
+JWT_SECRET=sua_chave_secreta
+```
+
+---
+
+## Rodar projeto
 
 ```bash
 npm run dev
@@ -252,44 +274,42 @@ npm run dev
 
 ---
 
-# 🎯 Future Features
+# Objetivos do Projeto
 
-- Daily Quests
-- Achievement System
-- Inventory System
-- Equipment System
-- Guilds / Teams
-- Leaderboards
-- Frontend Integration
-- AI Productivity Assistant
-- Statistics Dashboard
-- Task Categories UI
+Este projeto foi criado para praticar:
 
----
-
-# 🧠 Learning Goals
-
-This project was created to practice:
-
-- Backend Development
-- REST APIs
-- Authentication
+- Backend
+- APIs REST
+- JWT
 - Middleware
-- Firestore Queries
-- JWT Security
-- RPG System Logic
-- Software Architecture
-- Multiuser Systems
+- Firestore
+- Segurança
+- Arquitetura backend
+- Sistemas multiusuário
+- Lógica de RPG
 
 ---
 
-# 👨‍💻 Author
+# Futuras Funcionalidades
 
-Developed by Fernando César Barbosa Tomain Filho.
+- Sistema de achievements
+- Daily quests
+- Leaderboard
+- Dashboard de estatísticas
+- Inventário
+- Sistema de equipamentos
+- Frontend da aplicação
+- Sistema de guildas
 
 ---
 
-# 📜 License
+# Autor
 
-This project is under development for educational and portfolio purposes.
+Fernando César Barbosa Tomain Filho
+
+---
+
+# Licença
+
+Projeto desenvolvido para estudos e portfólio.
 
