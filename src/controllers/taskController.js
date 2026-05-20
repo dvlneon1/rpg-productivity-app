@@ -6,6 +6,38 @@ export async function createTask (req, res) {
     try {
 
         const {  title, difficulty, category } = req.body
+        const validDifficulties = [
+            "easy", 
+            "medium", 
+            "hard"
+        ]
+        const validCategories = [
+            "discipline",
+            "knowledge",
+            "mentality",
+            "body",
+            "social",
+            "finances"
+        ]
+        //verifica se titulo não é nulo, vazio, inexistente
+        if (!title || !title.trim()){
+            return res.status(400).json({
+                error: "Título inválido"
+            })
+        }
+        //verifica se fificuldade não é nulo, vazio, inexistente
+        if (!validDifficulty.includes(difficulty)){
+            return res.status(400).json({
+                error: "Dificuldade inválida"
+            })
+        }
+        //verifica se categoria não é nulo, vazio, inexistente
+        if (!validCategories.includes(category)){
+            return res.status(400).json({
+                error: "Categoria inválida"
+            })
+        }
+
         const userId = req.user.id
 
         let xpReward = 0
@@ -50,21 +82,31 @@ export async function completeTask (req, res){
         const taskRef = db.collection("tasks").doc(id)
         const taskDoc = await taskRef.get()
 
+        //task existe ?
         if(!taskDoc.exists){
             return res.status(404).json({
                 error: "Tarefa não encontrada"
             })
         }
-
+        
+        //pega os dados do documento task
         const taskData = taskDoc.data()
+        
+        //task pertence a este usuário ?
+        if (taskData.userId !== req.user.id){
+            return res.status(403).json({
+                error: "Você não possui acesso a esta task"
+            })
+        }
 
+        //task ja foi completa ?
         if (taskData.completed){
             return res.status(400).json({
                 error: "Tarefa já foi completada"
             })
         }
 
-
+        //entrega XP
         const category = taskData.category
 
         const userRef = db.collection("users").doc(taskData.userId)
@@ -144,4 +186,40 @@ export async function getTasks (req, res){
         
     }
 
+}
+
+export async function deleteTask(req, res){
+    try {
+        const { id } = req.params
+        const taskRef = db.collection("tasks").doc(id)
+        const taskDoc = await taskRef.get()
+
+        if (!taskDoc.exists){
+            return res.status(404).json({
+                error: "Task não encontrada"
+            })
+        }
+
+        await taskRef.delete()
+
+        return res.json({
+            message: "Task deletada com sucesso"
+        })
+
+        const taskData = taskDoc.data()
+
+        if (taskData.userId !== req.user.id){
+            return res.status(403).json({
+                error: "Você não possui acesso a esta task"
+            })
+        }
+
+
+    } catch (error) {
+        console.error(error)
+
+        res.status(500).json({
+            error: "Erro ao deletar task"
+        })
+    }
 }
