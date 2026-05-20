@@ -1,38 +1,33 @@
 import db from "../config/firebase.js";
 
-export async function createUser(req, res){
-
+export async function getProfile (req, res){
     try{
+        const userDoc = await db.collection("users").doc(req.user.id).get()
 
-        const { username } = req.body
-
-        const newUser = {
-            username,
-
-            level: 1,
-            xp: 0,
-
-            discipline: 0,
-            knowledge: 0,
-            mentality: 0,
-            body: 0,
-            social: 0,
-            finances: 0,
-
-            createdAt: new Date().toISOString()
+        if (!userDoc.exists){
+            return res.status(401).json({
+                error: "Usuário não encontrado"
+            })
         }
 
-        const userRef = await db.collection("users").add(newUser)
-
-        return res.status(201).json({
-            id: userRef.id,
-            ...newUser
+        const userData = userDoc.data()
+        return res.json({
+            id: userDoc.id,
+            username: userData.username,
+            email: userData.email,
+            level: userData.level,
+            xp: userData.xp,
+            discipline: userData.discipline,
+            knowledge: userData.knowledge,
+            mentality: userData.mentality,
+            body: userData.body,
+            social: userData.social,
+            finances: userData.finances
         })
 
     } catch (error) {
         return res.status(500).json({
-            error: "Error ao criar usuário"
+            error: "Erro ao buscar perfil"
         })
     }
-
 }
