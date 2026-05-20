@@ -1,5 +1,5 @@
 import db from "../config/firebase.js"
-import { authMiddleware } from "../middlewares/authMiddleware.js"
+import { getTaskById, validTaskOwner } from "../helpers/taskHelpers.js"
 
 export async function createTask (req, res) {
 
@@ -26,7 +26,7 @@ export async function createTask (req, res) {
             })
         }
         //verifica se fificuldade não é nulo, vazio, inexistente
-        if (!validDifficulty.includes(difficulty)){
+        if (!validDifficulties.includes(difficulty)){
             return res.status(400).json({
                 error: "Dificuldade inválida"
             })
@@ -79,18 +79,23 @@ export async function completeTask (req, res){
     try{
         
         const { id } = req.params
-        const taskRef = db.collection("tasks").doc(id)
-        const taskDoc = await taskRef.get()
+        
+        const task = await getTaskById(id)
 
-        //task existe ?
-        if(!taskDoc.exists){
+        if (!task){
             return res.status(404).json({
                 error: "Tarefa não encontrada"
             })
         }
         
-        //pega os dados do documento task
-        const taskData = taskDoc.data()
+        const { taskRef, taskData } = task
+
+        //task ja foi completa ?
+        if (taskData.completed){
+            return res.status(400).json({
+                error: "Tarefa já foi completada"
+            })
+        }
         
         //task pertence a este usuário ?
         if (taskData.userId !== req.user.id){
@@ -99,12 +104,6 @@ export async function completeTask (req, res){
             })
         }
 
-        //task ja foi completa ?
-        if (taskData.completed){
-            return res.status(400).json({
-                error: "Tarefa já foi completada"
-            })
-        }
 
         //entrega XP
         const category = taskData.category
@@ -119,6 +118,7 @@ export async function completeTask (req, res){
         }
 
         const userData = userDoc.data()
+
         const currentXp = userData.xp
         const xpReward = taskData.xpReward
         
@@ -189,16 +189,29 @@ export async function getTasks (req, res){
 }
 
 export async function deleteTask(req, res){
+    
     try {
-        const { id } = req.params
-        const taskRef = db.collection("tasks").doc(id)
-        const taskDoc = await taskRef.get()
+        const { id, userId } = req.params
+        const task = await getTaskById(id)
 
-        if (!taskDoc.exists){
+        if (!task.exists){
             return res.status(404).json({
                 error: "Task não encontrada"
             })
         }
+
+        const {taskRef, taskData} = task
+
+
+        const taskOwner = await validTaskOwner(userId)
+
+        if (!taskOwner.exists){
+            return res.status(403).json({
+                error: "Sem autorização para deletar"
+            })
+        }
+        
+        const { taskData } = taskOwner
 
         await taskRef.delete()
 
@@ -206,14 +219,7 @@ export async function deleteTask(req, res){
             message: "Task deletada com sucesso"
         })
 
-        const taskData = taskDoc.data()
-
-        if (taskData.userId !== req.user.id){
-            return res.status(403).json({
-                error: "Você não possui acesso a esta task"
-            })
-        }
-
+        
 
     } catch (error) {
         console.error(error)
