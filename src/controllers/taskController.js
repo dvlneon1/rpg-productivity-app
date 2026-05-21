@@ -205,15 +205,31 @@ export async function completeTask (req, res){
 export async function getTasks (req, res){
 
     try{
+        
+        const { difficulty, completed } = req.query
 
-        const snapshot = await db.collection("tasks").where("userId", "==", req.user.id).get()
+        let query = db.collection("tasks").where("userId", "==", req.user.id)
+
+        if (difficulty){
+            query = query.where("difficulty", "==", difficulty)
+        }
+
+        if (completed !== undefined){
+            const completedValue = completed === "true"
+
+            query = query.where("completed", "==", completedValue)
+        }
+
+        const snapshot = await query.get()
+
         const tasks = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }))
+        
 
         return res.json(tasks)
-
+        
     }catch (error){
         
         console.error(error)

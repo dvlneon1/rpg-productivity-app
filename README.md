@@ -1,8 +1,19 @@
 # RPG Productivity App
 
-API backend inspirada em sistemas de RPG para transformar produtividade em progressão de personagem.
+Aplicação backend inspirada em sistemas de RPG para produtividade pessoal.
 
-O usuário pode criar tarefas, completar desafios, ganhar XP, subir de nível e evoluir atributos pessoais.
+O usuário pode criar tarefas, completar desafios e ganhar XP para evoluir seu personagem conforme realiza atividades do dia a dia.
+
+---
+
+# Tecnologias
+
+- Node.js
+- Express
+- Firebase Firestore
+- JWT
+- Bcrypt
+- Git/GitHub
 
 ---
 
@@ -10,33 +21,38 @@ O usuário pode criar tarefas, completar desafios, ganhar XP, subir de nível e 
 
 ## Autenticação
 
-- Cadastro de usuários
+- Cadastro de usuário
 - Login com JWT
-- Senhas protegidas com bcrypt
-- Rotas protegidas por middleware
-- Autenticação via Bearer Token
+- Rotas protegidas
+- Middleware de autenticação
 
 ---
 
 ## Sistema de Tasks
 
-- Criar tarefas
-- Listar tarefas do usuário autenticado
-- Completar tarefas
-- Deletar tarefas
-- Sistema de dificuldade
-- Recompensa de XP
+- Criar task
+- Listar tasks
+- Atualizar task
+- Deletar task
+- Completar task
 
 ---
 
 ## Sistema RPG
 
-- Ganho de XP
-- Sistema de níveis dinâmico
-- XP remanescente após level up
-- Evolução de atributos
+Cada task possui:
+- dificuldade
+- categoria
+- recompensa de XP
 
-Atributos disponíveis:
+Ao completar tarefas:
+- o usuário ganha XP
+- sobe de nível
+- evolui atributos
+
+---
+
+# Categorias
 
 - discipline
 - knowledge
@@ -47,170 +63,7 @@ Atributos disponíveis:
 
 ---
 
-# Segurança
-
-A API possui:
-
-- JWT Authentication
-- Hash de senhas com bcrypt
-- Rotas protegidas
-- Validação de ownership
-- Isolamento de dados por usuário
-- Validação de entrada de dados
-
-Cada usuário pode acessar apenas suas próprias tasks.
-
----
-
-# Validações
-
-Atualmente a API valida:
-
-- título da task
-- dificuldade
-- categoria
-- usuário autenticado
-- ownership da task
-
-Exemplos de validação:
-
-- título vazio
-- dificuldade inválida
-- categoria inválida
-- tentativa de acessar task de outro usuário
-
----
-
-# Tecnologias Utilizadas
-
-- Node.js
-- Express.js
-- Firebase Firestore
-- bcrypt
-- jsonwebtoken
-- dotenv
-
----
-
-# Estrutura do Projeto
-
-```bash
-src/
-├── config/
-│   └── firebase.js
-│
-├── controllers/
-│   ├── authController.js
-│   ├── taskController.js
-│   └── userController.js
-│
-├── middlewares/
-│   └── authMiddleware.js
-│
-├── routes/
-│   ├── authRoutes.js
-│   ├── taskRoutes.js
-│   └── userRoutes.js
-│
-└── server.js
-```
-
----
-
-# Rotas da API
-
-## Auth
-
-| Método | Rota | Descrição |
-|---|---|---|
-| POST | /auth/register | Cadastro de usuário |
-| POST | /auth/login | Login do usuário |
-
----
-
-## Users
-
-| Método | Rota | Descrição |
-|---|---|---|
-| GET | /users/profile | Perfil do usuário autenticado |
-
----
-
-## Tasks
-
-| Método | Rota | Descrição |
-|---|---|---|
-| POST | /tasks | Criar task |
-| GET | /tasks | Listar tasks do usuário |
-| PATCH | /tasks/:id/completed | Completar task |
-| DELETE | /tasks/:id | Deletar task |
-
----
-
-# Fluxo de Autenticação
-
-## Cadastro
-
-```http
-POST /auth/register
-```
-
-Body:
-
-```json
-{
-  "email": "user@email.com",
-  "username": "Fernando",
-  "password": "123456"
-}
-```
-
----
-
-## Login
-
-```http
-POST /auth/login
-```
-
-Body:
-
-```json
-{
-  "email": "user@email.com",
-  "password": "123456"
-}
-```
-
-Resposta:
-
-```json
-{
-  "token": "JWT_TOKEN"
-}
-```
-
----
-
-# Rotas Protegidas
-
-As rotas protegidas utilizam:
-
-```http
-Authorization: Bearer TOKEN
-```
-
-Exemplo:
-
-```http
-GET /users/profile
-```
-
----
-
-# Sistema de XP
-
-Recompensas:
+# Dificuldades
 
 | Dificuldade | XP |
 |---|---|
@@ -220,96 +73,166 @@ Recompensas:
 
 ---
 
-# Sistema de Level
+# Arquitetura
 
-A progressão de nível é dinâmica.
-
-Exemplo:
-
-| Level | XP necessário |
-|---|---|
-| 1 → 2 | 100 XP |
-| 2 → 3 | 200 XP |
-| 3 → 4 | 300 XP |
-
-Fórmula:
-
-```js
-xpToNextLevel = level * 100
-```
-
----
-
-# Instalação
-
-## Clonar projeto
+Estrutura atual do backend:
 
 ```bash
-git clone https://github.com/dvlneon1/rpg-productivity-app.git
+src/
+├── config/
+├── controllers/
+├── helpers/
+├── middlewares/
+├── routes/
+└── server.js
 ```
 
 ---
 
-## Instalar dependências
+# Middlewares
 
-```bash
-npm install
+## authMiddleware
+
+Responsável por:
+- validar JWT
+- proteger rotas
+- identificar usuário autenticado
+
+---
+
+## taskValidationMiddleware
+
+Responsável por:
+- validar criação de tasks
+- validar atualização de tasks
+
+---
+
+# Helpers
+
+## taskHelpers
+
+Funções auxiliares reutilizáveis:
+- getTaskById
+- validateTaskOwner
+
+---
+
+# Filtros
+
+A rota de listagem de tasks suporta filtros.
+
+## Exemplos
+
+Buscar tasks difíceis:
+
+```http
+GET /tasks?difficulty=hard
+```
+
+Buscar tasks completas:
+
+```http
+GET /tasks?completed=true
+```
+
+Combinar filtros:
+
+```http
+GET /tasks?difficulty=hard&completed=false
 ```
 
 ---
 
-## Criar arquivo .env
+# Rotas
 
-```env
-JWT_SECRET=sua_chave_secreta
+## Auth
+
+### Cadastro
+
+```http
+POST /auth/register
+```
+
+### Login
+
+```http
+POST /auth/login
 ```
 
 ---
 
-## Rodar projeto
+## Usuário
 
-```bash
-npm run dev
+### Perfil
+
+```http
+GET /users/profile
 ```
 
 ---
 
-# Objetivos do Projeto
+## Tasks
 
-Este projeto foi criado para praticar:
+### Criar task
 
-- Backend
-- APIs REST
-- JWT
-- Middleware
-- Firestore
-- Segurança
-- Arquitetura backend
-- Sistemas multiusuário
-- Lógica de RPG
+```http
+POST /tasks
+```
+
+### Buscar tasks
+
+```http
+GET /tasks
+```
+
+### Atualizar task
+
+```http
+PATCH /tasks/:id
+```
+
+### Completar task
+
+```http
+PATCH /tasks/:id/completed
+```
+
+### Deletar task
+
+```http
+DELETE /tasks/:id
+```
 
 ---
 
-# Futuras Funcionalidades
+# Segurança
 
-- Sistema de achievements
+- Senhas criptografadas com bcrypt
+- Autenticação JWT
+- Ownership validation
+- Rotas protegidas
+
+---
+
+# Próximos passos
+
+- Frontend React
+- Dashboard
+- Sistema de streak
 - Daily quests
-- Leaderboard
-- Dashboard de estatísticas
-- Inventário
-- Sistema de equipamentos
-- Frontend da aplicação
-- Sistema de guildas
+- Estatísticas
+- Paginação
+- Ranking de usuários
 
 ---
 
-# Autor
+# Status do Projeto
 
-Fernando César Barbosa Tomain Filho
+Backend funcional em desenvolvimento contínuo.
 
----
+Versão atual:
 
-# Licença
-
-Projeto desenvolvido para estudos e portfólio.
-
+```text
+v0.1.0
+```
