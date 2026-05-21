@@ -18,25 +18,8 @@ export async function getTaskById(id){
     }
 }
 
-export async function validTaskOwner(userId){
-
-    const taskRef = db.collection("tasks").doc(userId)
-    const taskDoc = await taskRef.get()
-
-    if(!taskDoc.exists){
-        return null
-    }
-
-    const taskData = taskDoc.doc
-
-    if (!taskData.userId !== req.user.id){
-        return null
-    }
-
-    return {
-        taskRef
-    }
-
+export async function validateTaskOwner(taskData, loggedUserId){
+    return taskData.userId === loggedUserId
 }
 
 export async function difficultyTask(difficulty){

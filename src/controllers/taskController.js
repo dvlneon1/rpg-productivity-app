@@ -1,5 +1,5 @@
 import db from "../config/firebase.js"
-import { getTaskById, validTaskOwner } from "../helpers/taskHelpers.js"
+import { getTaskById, validateTaskOwner } from "../helpers/taskHelpers.js"
 
 export async function createTask (req, res) {
 
@@ -88,7 +88,7 @@ export async function completeTask (req, res){
             })
         }
         
-        const { taskRef, taskData } = task
+        const { taskRef,taskData } = task
 
         //task ja foi completa ?
         if (taskData.completed){
@@ -106,7 +106,6 @@ export async function completeTask (req, res){
 
 
         //entrega XP
-        const category = taskData.category
 
         const userRef = db.collection("users").doc(taskData.userId)
         const userDoc = await userRef.get()
@@ -191,27 +190,27 @@ export async function getTasks (req, res){
 export async function deleteTask(req, res){
     
     try {
-        const { id, userId } = req.params
+        const { id } = req.params
+        const loggedUserId = req.user.id
         const task = await getTaskById(id)
 
-        if (!task.exists){
+        if (!task){
             return res.status(404).json({
                 error: "Task não encontrada"
             })
         }
 
-        const {taskRef, taskData} = task
+        const { taskRef, taskData } = task
 
 
-        const taskOwner = await validTaskOwner(userId)
+        const isOwner = validateTaskOwner(taskData, loggedUserId)
 
-        if (!taskOwner.exists){
+        if (!isOwner){
             return res.status(403).json({
                 error: "Sem autorização para deletar"
             })
         }
-        
-        const { taskData } = taskOwner
+
 
         await taskRef.delete()
 
