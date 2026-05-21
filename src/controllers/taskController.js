@@ -3,41 +3,9 @@ import { getTaskById, validateTaskOwner } from "../helpers/taskHelpers.js"
 
 export async function createTask (req, res) {
 
-    try {
-
-        const {  title, difficulty, category } = req.body
-        const validDifficulties = [
-            "easy", 
-            "medium", 
-            "hard"
-        ]
-        const validCategories = [
-            "discipline",
-            "knowledge",
-            "mentality",
-            "body",
-            "social",
-            "finances"
-        ]
-        //verifica se titulo não é nulo, vazio, inexistente
-        if (!title || !title.trim()){
-            return res.status(400).json({
-                error: "Título inválido"
-            })
-        }
-        //verifica se fificuldade não é nulo, vazio, inexistente
-        if (!validDifficulties.includes(difficulty)){
-            return res.status(400).json({
-                error: "Dificuldade inválida"
-            })
-        }
-        //verifica se categoria não é nulo, vazio, inexistente
-        if (!validCategories.includes(category)){
-            return res.status(400).json({
-                error: "Categoria inválida"
-            })
-        }
-
+    try { 
+        
+        const { title, difficulty, category } = req.body
         const userId = req.user.id
 
         let xpReward = 0
