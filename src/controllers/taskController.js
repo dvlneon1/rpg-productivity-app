@@ -42,6 +42,76 @@ export async function createTask (req, res) {
 
 }
 
+export async function updateTask(req, res){
+    try {
+        
+        const { id } = req.params
+
+        const loggedUserId = req.user.id
+
+        const task = await getTaskById(id)
+
+        if (!task) {
+            return res.status(404).json({
+                error: "Task não encontrada"
+            })
+        }
+
+        const { taskRef, taskData } = task
+
+        const isOwner = validateTaskOwner( taskData, loggedUserId )
+
+        if (!isOwner){
+            return res.status(403).json({
+                error: "Sem autorização"
+            })
+        }
+
+        const { title, difficulty, category } = req.body
+
+        const updatedData = {}
+
+        if (title !== undefined){
+            updatedData.title = title
+        }
+
+        if (difficulty !== undefined){
+
+            updatedData.difficulty = difficulty
+        
+            if (difficulty === "easy"){
+                updatedData.xpReward = 10
+            }
+
+            if (difficulty === "medium"){
+                updatedData.xpReward = 25
+            }
+
+            if (difficulty === "hard"){
+                updatedData.xpReward = 1000
+            }
+
+        }
+
+        if (category !== undefined){
+            updatedData.category = category
+        }
+
+        updatedData.updatedAt = new Date().toISOString()
+        await taskRef.update(updatedData)
+
+        return res.json({
+            message: "Task atualizada com sucesso"
+        })
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            error: "Erro ao atualizar Task"
+        })
+    }
+}
+
 export async function completeTask (req, res){
     
     try{
